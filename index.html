@@ -58,19 +58,25 @@ figure{margin:0}
 
 /* local nav */
 .ln{position:sticky;top:0;z-index:20;height:52px;background:light-dark(rgba(255,255,255,.76),rgba(22,22,23,.76));-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid light-dark(rgba(0,0,0,.14),rgba(255,255,255,.1));transition:background-color .35s,border-color .35s}
-.ln-in{width:min(var(--W),87.5vw);height:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.ln-in{width:min(var(--W),87.5vw);height:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .ln-t{flex:none;font:600 21px/1 var(--sans);letter-spacing:.011em;color:var(--ink);white-space:nowrap;transition:color .35s}
 .ln-t:hover{text-decoration:none}
-.ln-l{list-style:none;margin:0;padding:0;display:flex;gap:26px}
+.ln-l{list-style:none;margin:0;padding:0;display:flex;gap:18px}
 .ln-l a{display:block;font:400 13px/1 var(--sans);letter-spacing:-.01em;color:var(--mut);padding:8px 0;transition:color .2s}
 .ln-l a:hover{color:var(--ink);text-decoration:none}
 .ln-l a.on{color:var(--ink)}
 .ln-b{display:none}
 .ln-l{margin-left:auto}
-.ln-pdf{flex:none;display:flex;align-items:center;gap:6px;margin-left:26px;font:400 13px/1 var(--sans);letter-spacing:-.01em;color:var(--link);white-space:nowrap}
+.ln-pdf{flex:none;display:flex;align-items:center;gap:6px;margin-left:20px;font:400 13px/1 var(--sans);letter-spacing:-.01em;color:var(--link);white-space:nowrap}
 .ln-pdf svg{width:8px;height:14px}
 .ln.dk .ln-pdf{color:#2997ff}
 .ln-pdf .sh{display:none}
+.ln-li{flex:none;display:flex;align-items:center;gap:6px;margin-left:18px;font:400 13px/1 var(--sans);letter-spacing:-.01em;color:var(--link);white-space:nowrap}
+.ln-li:hover{text-decoration:none}
+.ln-li:hover .t{text-decoration:underline;text-underline-offset:.18em}
+.ln.dk .ln-li{color:#2997ff}
+.ln-li svg{width:12px;height:12px;flex:none}
+.ln-li .sh{display:none}
 .ln.dk{background:rgba(22,22,23,.82);border-color:rgba(255,255,255,.1)}
 .ln.dk .ln-t{color:#f5f5f7}
 .ln.dk .ln-l a{color:#a1a1a6}
@@ -351,10 +357,14 @@ tr.today td{border-bottom:2px solid var(--acc);color:var(--acc);font-weight:600;
 @media screen and (max-width:1068px){
 :root{--W:692px}
 .ln-t{font-size:19px}
-.ln-l{gap:16px}
-.ln-pdf{margin-left:18px}
+.ln-l{gap:12px}
+.ln-l a{font-size:12px}
+.ln-pdf{margin-left:14px}
 .ln-pdf .lg{display:none}
 .ln-pdf .sh{display:inline}
+.ln-li{margin-left:8px;padding:12px 6px;margin-right:-6px}
+.ln-li .t{display:none}
+.ln-li svg{width:16px;height:16px}
 .h-a,.h-c{font-size:48px}
 .hd{font-size:48px;line-height:1.08}
 .opt .w{font-size:80px}
@@ -387,13 +397,16 @@ ol.steps-list li:last-child:nth-child(odd){grid-column:span 2}
 .hp,.core{padding:20px 20px 22px}
 }
 
-/* phones */
-@media screen and (max-width:734px){
+/* the chapter links fold into a menu once they no longer fit beside the title */
+@media screen and (max-width:800px){
 .ln-t{font-size:19px}
 .ln-pdf{margin-left:auto;font-size:15px}
 .ln-pdf .lg{display:none}
 .ln-pdf .sh{display:inline}
 .js .ln-pdf{margin-right:4px}
+.ln-in{gap:14px}
+.ln-li{margin-left:auto}
+.ln-pdf+.ln-li{margin-left:-6px}
 .js .ln-b{display:grid;place-items:center;width:44px;height:44px;margin-right:-12px;padding:0;border:0;background:none;color:var(--ink);cursor:pointer}
 .ln.dk .ln-b{color:#f5f5f7}
 .ln-b .chv{transform:rotate(90deg);transition:transform .3s}
@@ -403,6 +416,10 @@ ol.steps-list li:last-child:nth-child(odd){grid-column:span 2}
 .ln.open .ln-l{display:flex}
 .ln-l a{font-size:17px;padding:11px 0;color:var(--ink)}
 .ln.dk .ln-l a{color:#f5f5f7}
+}
+
+/* phones */
+@media screen and (max-width:734px){
 .h-a,.h-c{font-size:28px;line-height:1.14;letter-spacing:.007em}
 .h-c{max-width:12em}
 .h-b{font-size:clamp(48px,16.5vw,72px)}
@@ -545,6 +562,7 @@ figure,.tile,tr,ol.steps-list li,.cc,.itog,.lad-l li,.hp,.au-l li,.pl-l li,.end-
 <a class="ln-t" href="#top">AI PM Cheat Sheet</a>
 <ul class="ln-l" id="ln-l"><li><a href="#model">Model</a></li><li><a href="#system">System</a></li><li><a href="#evals">Evals</a></li><li><a href="#client">Customer</a></li><li><a href="#strategy">Strategy</a></li><li><a href="#practice">Practice</a></li><li><a href="#sources">Sources</a></li></ul>
 <a class="ln-pdf" href="ai-pm-cheat-sheet.pdf" download><svg aria-hidden="true"><use href="#dn"/></svg><span class="lg">Download PDF</span><span class="sh">PDF</span></a>
+<a class="ln-li" href="https://www.linkedin.com/in/ovasyliev/" target="_blank" rel="noopener" aria-label="Follow on LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zM7.119 20.452H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg><span class="t">Follow on LinkedIn</span></a>
 <button class="ln-b" type="button" aria-expanded="false" aria-controls="ln-l" aria-label="Chapters"><i class="chv"></i></button>
 </div></nav>
 <header class="hero" id="top">
