@@ -78,14 +78,15 @@ figure{margin:0}
 
 /* hero */
 .hero{position:relative;margin-top:-52px;padding:52px 0 0;min-height:max(640px,100svh);background:#000;color:#f5f5f7;display:grid;place-items:center;text-align:center;overflow:hidden}
-.hx{margin:0;display:grid;justify-items:center;font-weight:600;padding:24px 0 104px}
+.sky{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.hx{position:relative;z-index:1;margin:0;display:grid;justify-items:center;font-weight:600;padding:24px 0 104px}
 .h-a,.h-c{display:block;font-size:56px;line-height:1.07;letter-spacing:-.005em}
 .h-c{color:#86868b}
 .h-b{display:grid;justify-items:center;font-size:clamp(64px,11.2vw,160px);line-height:1.08;letter-spacing:-.025em;margin:.04em 0 .1em}
 .h-b span{grid-area:1/1;opacity:0;transform:translateY(.22em);transition:opacity .55s ease,transform .8s cubic-bezier(.2,.75,.25,1)}
 .h-b span.on{opacity:1;transform:none}
 .h-b span.out{opacity:0;transform:translateY(-.22em)}
-.h-ft{position:absolute;left:0;right:0;bottom:30px;width:min(var(--W),87.5vw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;text-align:left}
+.h-ft{z-index:1;position:absolute;left:0;right:0;bottom:30px;width:min(var(--W),87.5vw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;text-align:left}
 .h-by{margin:0;font:600 12px/1.45 var(--sans);letter-spacing:-.01em;color:#f5f5f7}
 .h-by a{color:inherit}
 .h-pp{flex:none;position:relative;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(232,232,237,.12);color:#f5f5f7;cursor:pointer;display:grid;place-items:center}
@@ -504,6 +505,7 @@ td:first-child{-webkit-hyphens:manual;hyphens:manual}
 .caret,.core .ra{animation:none}
 }
 @media print{
+.sky{display:none}
 @page{size:A4;margin:16mm 14mm 18mm;@bottom-left{content:"AI PM Cheat Sheet";font:8pt -apple-system,BlinkMacSystemFont,sans-serif;color:#86868b}@bottom-right{content:counter(page);font:8pt -apple-system,BlinkMacSystemFont,sans-serif;color:#86868b}}
 :root{color-scheme:light}
 html{-webkit-print-color-adjust:exact;print-color-adjust:exact;scroll-behavior:auto}
@@ -1318,6 +1320,113 @@ let tick=false;
 addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(()=>{tick=false;spy()})}},{passive:true});
 addEventListener('resize',spy);
 spy();
+
+// sky: the loop as a ring of stardust around the title. It steps a quarter turn with every word; the pause button stops it too.
+{
+const hero=d.querySelector('.hero');
+const cv=d.createElement('canvas');cv.className='sky';cv.setAttribute('aria-hidden','true');hero.prepend(cv);
+const g=cv.getContext('2d');
+let W=0,H=0,DPR=1,T=0,wNow=-1,portrait=false;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const gauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(6.2832*v)};
+const ease=(a,b,k)=>a+(b-a)*k;
+const TINT=['245,245,247','255,238,218','222,232,255'];
+
+// pointer: eased, so nothing jumps when it enters or leaves
+let pt={x:-1e4,y:-1e4,on:0},pe={x:0,y:0,on:0};
+hero.addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect();pt.x=e.clientX-r.left;pt.y=e.clientY-r.top;if(!pe.on){pe.x=pt.x;pe.y=pt.y}pt.on=1;kick()});
+hero.addEventListener('pointerleave',()=>{pt.on=0});
+
+// the title block: decoration stays faint behind it
+let box={l:0,t:0,r:0,b:0};
+const measure=()=>{const h=hero.getBoundingClientRect(),x=hero.querySelector('.hx .h-a').getBoundingClientRect(),y=hero.querySelector('.hx .h-c').getBoundingClientRect(),z=hero.querySelector('.h-b').getBoundingClientRect();
+  box={l:Math.min(x.left,y.left,z.left)-h.left,r:Math.max(x.right,y.right,z.right)-h.left,t:x.top-h.top,b:y.bottom-h.top}};
+const clear=(x,y,pad)=>{const dx=Math.max(box.l-x,0,x-box.r),dy=Math.max(box.t-y,0,y-box.b),dd=Math.hypot(dx,dy);return Math.min(1,dd/pad)};
+
+let stars=[];
+function initStars(n){
+  stars=[];
+  for(let i=0;i<n;i++){const z=Math.random();
+    stars.push({x:Math.random()*W,y:Math.random()*H,z,r:Math.random()<.035?rnd(1,1.5):rnd(.35,.9)*(.65+z*.5),a:rnd(.22,.8)*(.55+z*.45),tw:rnd(.5,1.7),ph:rnd(0,6.3),c:Math.random()<.8?0:Math.random()<.5?1:2})}
+  stars.sort((a,b)=>a.c-b.c);
+}
+function drawStars(drift){
+  let c=-1;
+  for(const s of stars){
+    if(s.c!==c){c=s.c;g.fillStyle='rgb('+TINT[c]+')'}
+    let x=(s.x-T*drift*(.25+s.z))%W;if(x<0)x+=W;
+    g.globalAlpha=s.a*(.72+.28*Math.sin(T*s.tw+s.ph));
+    if(s.r<.8)g.fillRect(x-s.r,s.y-s.r,s.r*2,s.r*2);else{g.beginPath();g.arc(x,s.y,s.r,0,6.2832);g.fill()}
+  }
+  g.globalAlpha=1;
+}
+/* ---------- 2. Stardust loop: the loop as a ring of dust around the title ---------- */
+let dust=[],ring={},sweep=0,sweepTo=0;
+// on a phone the ring is wider than the screen and passes above and below the title
+function place(){
+  const half=(box.b-box.t)/2||80,Rx=portrait?W*.82:Math.min(W*.47,800),Ry=portrait?Math.max(half+64,W*.4):Rx*.3;
+  ring={cx:W*.5,cy:(box.t+box.b)/2||H*.48,Rx,Ry,rot:portrait?-.3:-.16};
+}
+function initRing(){
+  initStars(Math.round(W*H/5200));
+  place();
+  const n=Math.round(Math.min(3200,Math.max(1500,W*H/420)));dust=[];
+  for(let i=0;i<n;i++){const core=Math.random()<.7;
+    dust.push({th:rnd(0,6.2832),dr:gauss()*(core?.035:.09),dz:gauss()*(core?.03:.08),w:rnd(.85,1.15),r:rnd(.35,1.05)*(core?1:.8),a:rnd(.25,.85)*(core?1:.55),ph:rnd(0,6.3),c:Math.random()<.6?1:0})}
+  dust.sort((a,b)=>a.c-b.c);
+  wNow=-1;
+}
+function drawRing(dt,still){
+  drawStars(still?0:1.2);
+  const{cx,cy,Rx,Ry,rot}=ring,cr=Math.cos(rot),sr=Math.sin(rot),om=.07;
+  // the bright arc travels a quarter of the loop with every word
+  if(!still)sweep=ease(sweep,sweepTo,Math.min(1,dt*1.6));
+  let c=-1;
+  for(const p of dust){
+    if(p.c!==c){c=p.c;g.fillStyle='rgb('+TINT[c]+')'}
+    const th=p.th+(still?0:T*om*p.w),R=1+p.dr;
+    let lx=Math.cos(th)*Rx*R,ly=Math.sin(th)*Ry*R+p.dz*Ry;
+    let x=cx+lx*cr-ly*sr,y=cy+lx*sr+ly*cr;
+    if(pe.on){const dx=x-pe.x,dy=y-pe.y,dd=Math.hypot(dx,dy);if(dd<150&&dd>.1){const f=Math.pow(1-dd/150,2)*26*pe.on;x+=dx/dd*f;y+=dy/dd*f}}
+    const front=(Math.sin(th)+1)/2;
+    let da=((th-(sweep-Math.PI/2))%6.2832+6.2832)%6.2832;if(da>Math.PI)da-=6.2832;
+    const hi=Math.exp(-da*da/.35);
+    g.globalAlpha=Math.min(1,p.a*(.32+.5*front)*(.8+.2*Math.sin(T*1.3+p.ph))+hi*.45*p.a)*(.35+.65*clear(x,y,40));
+    const r=p.r*(.75+.45*front)+hi*.25;
+    g.fillRect(x-r,y-r,r*2,r*2);
+  }
+  g.globalAlpha=1;
+}
+
+/* ---------- loop ---------- */
+function init(){
+  const r=hero.getBoundingClientRect();W=Math.round(r.width);H=Math.round(r.height);portrait=H>W*1.15;
+  DPR=Math.min(2,window.devicePixelRatio||1);cv.width=W*DPR;cv.height=H*DPR;g.setTransform(DPR,0,0,DPR,0,0);
+  measure();
+  initRing();
+  draw(0);
+}
+function draw(dt){
+  const still=RM.matches;
+  const w=ws.findIndex(s=>s.classList.contains('on'));
+  if(w!==wNow){if(wNow>=0)sweepTo+=Math.PI/2;wNow=w}
+  pe.on=ease(pe.on,pt.on,Math.min(1,dt*4));if(pt.on){pe.x=ease(pe.x,pt.x,Math.min(1,dt*8));pe.y=ease(pe.y,pt.y,Math.min(1,dt*8))}
+  g.clearRect(0,0,W,H);
+  drawRing(dt,still);
+}
+let vis=true,raf=0,last=0;
+const want=()=>vis&&!d.hidden&&!pp.classList.contains('paused')&&!RM.matches;
+const frame=now=>{raf=0;const dt=Math.min(.05,(now-last)/1000);last=now;T+=dt;draw(dt);if(want())raf=requestAnimationFrame(frame)};
+function kick(){if(!raf&&want()){last=performance.now();raf=requestAnimationFrame(frame)}}
+new IntersectionObserver(e=>{vis=e[0].isIntersecting;kick()}).observe(hero);
+d.addEventListener('visibilitychange',kick);
+pp.addEventListener('click',()=>setTimeout(kick));
+if(RM.addEventListener)RM.addEventListener('change',()=>{init();kick()});
+let rt=0;new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>{const r=hero.getBoundingClientRect();if(Math.round(r.width)===W&&Math.round(r.height)===H)return;init();kick()},120)}).observe(hero);
+if(d.fonts)d.fonts.ready.then(()=>{measure();place();if(!raf)draw(0)});
+init();kick();
+}
+
 
 // PDF: inside the Claude viewer the file is saved through its download prompt; elsewhere the link opens it
 const pdfs=[...d.querySelectorAll('a.ln-pdf,a.pdf-foot')];
